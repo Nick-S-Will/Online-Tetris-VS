@@ -15,7 +15,6 @@ class Client:
             return int(self.local_socket.recv(8).decode())
         except Exception as exception:
             print(f"Exception occured trying to connect to server {network.SERVER_ADDRESS}: {exception}")
-            exit()
     
     def send_request(self, data: network.Request) -> network.GameState:
         try:

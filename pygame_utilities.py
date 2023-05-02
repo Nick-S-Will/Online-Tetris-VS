@@ -3,7 +3,7 @@ import pygame
 colors = {'primary': '#FF7DD4', 'accent': '#D65AAD', 'secondary': '#4A263E'}
 
 class Button():
-    def __init__(self, x, y, width, height, screen, font = None, buttonText = "", onclickFunction = None):
+    def __init__(self, x: int, y: int, width: int, height: int, screen: pygame.Surface, font: pygame.font.Font = None, text_color = '#000000', button_text = "", on_click_function = None):
         self.x = x
         self.y = y
         self.width = width
@@ -11,8 +11,8 @@ class Button():
         self.screen = screen
         if font == None:
             font = pygame.font.SysFont('Arial', 20)
-        self.buttonText = font.render(buttonText, True, (20, 20, 20))
-        self.onclickFunction = onclickFunction
+        self.buttonText = font.render(button_text, True, text_color)
+        self.onclickFunction = on_click_function
 
         self.buttonSurface = pygame.Surface((self.width, self.height))
         self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
