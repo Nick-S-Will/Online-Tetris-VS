@@ -53,9 +53,7 @@ def handle_key_input(input_keys):
         game_instance.board.falling_piece.tiles = next_positions
 
 #region Draw menu
-def create_buttons(parent_position: tuple[int], parent_size: tuple[int], texts: list[str], functions: list):
-    button_width = 200
-    button_height = 60
+def create_buttons(parent_position: tuple[int], parent_size: tuple[int], texts: list[str], functions: list, button_width = 200, button_height = 60):
     button_x = (screen.get_width() - button_width) / 2
     base_y = parent_position[1] + parent_size[1] + 2 * game.WINDOW_PADDING
     delta_y = button_height + game.WINDOW_PADDING
@@ -119,13 +117,16 @@ def draw_side_bar():
     side_bar_surface.fill(pygame_utilities.colors['secondary'])
 
     def draw_piece_on_side_bar(prefab, y_offset = 0):
+        if isinstance(prefab, tuple):
+            prefab = list(prefab)
+
         max_x = max(pos[0] for pos in prefab[0])
         offset = (game.SIDE_BAR_WIDTH / game.GRID_SIZE - 1 - max_x) / 2
         prefab[0] = [(pos[0] + offset, pos[1] + offset + y_offset) for pos in prefab[0]]
 
         draw_tiles_to_surface(game.Piece(prefab, False), side_bar_surface)
 
-    draw_piece_on_side_bar(game.Piece.get_next_piece_prefab())
+    draw_piece_on_side_bar(game_instance.piece_order[game_instance.next_piece_index])
         
     if game_instance.held_piece_prefab != None:
         draw_piece_on_side_bar(list(game_instance.held_piece_prefab), 4)
@@ -209,10 +210,11 @@ def play_game(is_multiplayer = False):
         if local_client.id == None:
             game_outcome = "Server Offline"
             return
+        seed = local_client.send_request(network.Request(game.Board.empty(), [])).seed
 
     update_screen_size(is_multiplayer)
 
-    game_instance = game.Game()
+    game_instance = game.Game(seed if is_multiplayer else None)
     input_times = 4 * [-game_instance.input_move_interval] + 2 * [-game_instance.input_turn_interval] + [0]
     lines_to_send = 0
     paused = False

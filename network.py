@@ -1,3 +1,5 @@
+import random
+
 import game
 
 SERVER_ADDRESS = ("192.168.4.36", 55555)
@@ -59,9 +61,10 @@ class Request:
         return f"Board: ({self.board}) Flags: {self.flags}"
 
 class GameState:
-    def __init__(self, boards: list[game.Board] = None, flags: list[list[Flag]] = None):
+    def __init__(self, boards: list[game.Board] = None, flags: list[list[Flag]] = None, seed: int = random.random()):
         self.boards = CLIENTS_PER_SESSION * [game.Board.empty()] if boards == None else boards
         self.flag_lists = CLIENTS_PER_SESSION * [[]] if flags == None else flags
+        self.seed = seed
     
     def __str__(self) -> str:
         return f"Boards:\n{self.boards}\nFlags:\n{self.flag_lists}"
@@ -94,11 +97,12 @@ def handle_data(server_state: GameState, client_request: Request, client_id: int
         flag_lists[client_id].append(Flag(RESPONSE_WAIT, WAITING_FOR_OPPONENT))
 
     responses = get_responses(client_request, client_id)
-        
-    for i in range(CLIENTS_PER_SESSION):
-        if i == client_id:
-            continue
-        
-        flag_lists[i].extend(responses)
     
-    return GameState(boards, flag_lists)
+    if len(responses) > 0:
+        for i in range(CLIENTS_PER_SESSION):
+            if i == client_id:
+                continue
+            
+            flag_lists[i].extend(responses)
+    
+    return GameState(boards, flag_lists, server_state.seed)

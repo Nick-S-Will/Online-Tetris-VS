@@ -23,7 +23,7 @@ def is_session_maintained(data, session_id: int, connection_socket: socket) -> b
     else:
         return True
     
-    print(f"Client {connection_socket.getpeername()} has disconnected unexpectedly")
+    print(f"Client {connection_socket.getpeername()} has disconnected")
     return False
 
 def handle_client(connection_socket: socket, client_id: int, session_id: int):

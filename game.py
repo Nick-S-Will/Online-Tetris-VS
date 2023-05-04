@@ -1,4 +1,5 @@
 import random
+import copy
 
 GRID_SIZE = 30
 TILE_PADDING = 3
@@ -23,16 +24,8 @@ class Piece:
                 ([(0, 0), (1, 0), (2, 0), (3, 0)], '#00FFFF', 'I'), # Cyan
                 ([(0, 0), (1, 0), (2, 0), (2, 1)], '#0000FF', 'J'), # Blue
                 ([(0, 0), (1, 0), (2, 0), (1, 1)], '#DD00DD', 'T')] # Purple
-        next_prefab_index = 0
 
-        def __init__(self, prefab = None, has_offset = True):
-            if prefab == None:
-                prefab = Piece.prefabs[Piece.next_prefab_index]
-                
-                Piece.next_prefab_index = (Piece.next_prefab_index + 1) % len(Piece.prefabs)
-                if Piece.next_prefab_index == 0:
-                    random.shuffle(Piece.prefabs)
-                
+        def __init__(self, prefab, has_offset = True):
             self.tiles, self.color, self.type = prefab
             if has_offset:
                 self.tiles = [(PIECE_X_OFFSET + tile[0], tile[1]) for tile in self.tiles]
@@ -44,9 +37,6 @@ class Piece:
 
             return None
         
-        def get_next_piece_prefab():
-            return list(Piece.prefabs[Piece.next_prefab_index])
-        
         def empty():
             return Piece(([], '', ''), False)
         
@@ -57,9 +47,7 @@ class Board:
     def __init__(self, ground_tiles: dict = None, falling_piece: Piece = None) -> None:
         self.ground_tiles = {} if ground_tiles == None else ground_tiles
         
-        random.shuffle(Piece.prefabs)
-        Piece.next_prefab_index = 0
-        self.falling_piece = Piece() if falling_piece == None else falling_piece
+        self.falling_piece = Piece(Piece.prefabs[random.randint(0, len(Piece.prefabs) - 1)]) if falling_piece == None else falling_piece
 
     def tile_is_invalid(self, tile):
         return tile in self.ground_tiles or tile[0] < 0 or BOARD_TILE_WIDTH <= tile[0] or tile[1] < 0 or BOARD_TILE_HEIGHT <= tile[1]
@@ -102,9 +90,14 @@ class Board:
         str(self)
 
 class Game:
-    def __init__(self) -> None:
-        self.board = Board()
-        
+    def __init__(self, piece_type_seed: int = None) -> None:
+        self.piece_type_randomizer = random.Random(random.random() if piece_type_seed == None else piece_type_seed)
+
+        self.piece_order = copy.deepcopy(Piece.prefabs)
+        self.piece_type_randomizer.shuffle(self.piece_order) 
+        self.next_piece_index = 0
+        self.board = Board(falling_piece = self.get_next_piece())
+
         self.input_move_interval = BASE_INPUT_MOVE_INTERVAL
         self.input_turn_interval = BASE_INPUT_TURN_INTERVAL
         self.update_interval = BASE_UPDATE_INTERVAL
@@ -113,6 +106,18 @@ class Game:
         self.held_piece_prefab = None
         self.have_held = False
         self.alive = True
+    
+    def update_piece_index(self):
+        self.next_piece_index = (self.next_piece_index + 1) % len(self.piece_order)
+
+        if self.next_piece_index == 0:
+            self.piece_type_randomizer.shuffle(self.piece_order)
+    
+    def get_next_piece(self) -> Piece:
+        piece = Piece(self.piece_order[self.next_piece_index])
+        self.update_piece_index()
+
+        return piece
         
     def lift_all_tiles(self, amount: int):
         for y in range(BOARD_TILE_HEIGHT):
@@ -194,7 +199,7 @@ class Game:
 
         if self.held_piece_prefab == None:
             self.held_piece_prefab = self.board.falling_piece.get_prefab()
-            self.board.falling_piece = Piece()
+            self.board.falling_piece = self.get_next_piece()
         else:
             temp = self.board.falling_piece.get_prefab()
             self.board.falling_piece = Piece(self.held_piece_prefab)
@@ -216,7 +221,7 @@ class Game:
             if tile[1] not in y_levels:
                 y_levels.append(tile[1])
         
-        self.board.falling_piece = Piece()
+        self.board.falling_piece = self.get_next_piece()
         for tile in self.board.falling_piece.tiles:
             if tile in self.board.ground_tiles:
                 self.alive = False
