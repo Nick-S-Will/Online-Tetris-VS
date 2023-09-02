@@ -2,7 +2,7 @@ import random
 
 import game
 
-SERVER_ADDRESS = ("192.168.4.36", 55555)
+SERVER_ADDRESS = ("34.130.84.251", 55555)
 
 # Data inherent to specific type of game
 CLIENTS_PER_SESSION = 2
