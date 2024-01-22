@@ -1,3 +1,4 @@
+import sys
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
@@ -25,7 +26,7 @@ def check_for_quit():
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                sys.exit()
 
 def stop_playing():
     global playing
