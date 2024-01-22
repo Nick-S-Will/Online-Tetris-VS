@@ -253,7 +253,7 @@ def main_menu():
     title_render = title_font.render("Tetris", 1, text_color)
     title_position = ((screen.get_width() - title_render.get_width()) / 2, 2 * game.WINDOW_PADDING)
 
-    texts = ["Singleplayer", "Mutliplayer", "Quit"]
+    texts = ["Singleplayer", "Multiplayer", "Quit"]
     functions = [lambda: play_game(), lambda: play_game(True), lambda: stop_playing()]
     buttons = create_buttons(title_position, (title_render.get_width(), title_render.get_height()), texts, functions)
 
