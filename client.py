@@ -4,17 +4,17 @@ import pickle
 import network
 
 class Client:
-    def __init__(self):
+    def __init__(self, address = network.SERVER_ADDRESS):
         self.local_socket = socket.socket()
-        self.id = self.connect()
+        self.id = self.connect(address)
     
-    def connect(self):
+    def connect(self, address):
         try:
-            self.local_socket.connect(network.SERVER_ADDRESS)
-            print(f"Connected to {network.SERVER_ADDRESS}")
+            self.local_socket.connect(address)
+            print(f"Connected to {address}")
             return int(self.local_socket.recv(8).decode())
         except Exception as exception:
-            print(f"Exception occured trying to connect to server {network.SERVER_ADDRESS}: {exception}")
+            print(f"Exception occured trying to connect to server {address}: {exception}")
     
     def send_request(self, data: network.Request) -> network.GameState:
         try:

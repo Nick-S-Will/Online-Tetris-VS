@@ -1,3 +1,4 @@
+import sys
 import random
 
 import game
@@ -68,6 +69,14 @@ class GameState:
     
     def __str__(self) -> str:
         return f"Boards:\n{self.boards}\nFlags:\n{self.flag_lists}"
+    
+def get_address() -> tuple:
+    address = SERVER_ADDRESS
+    if len(sys.argv) > 1:
+        address = sys.argv[1].split(':')
+        address = (address[0], int(address[1]))
+        
+    return address
 
 def is_session_waiting(boards: list[game.Board]) -> bool:
     for board in boards:

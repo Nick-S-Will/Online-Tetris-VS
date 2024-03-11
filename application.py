@@ -207,7 +207,8 @@ def play_game(is_multiplayer = False):
     global game_outcome
 
     if is_multiplayer:
-        local_client = client.Client()
+        address = network.get_address()
+        local_client = client.Client(address)
         if local_client.id == None:
             game_outcome = "Server Offline"
             return

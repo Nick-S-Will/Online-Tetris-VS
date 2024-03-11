@@ -1,4 +1,5 @@
 from _thread import start_new_thread
+import sys
 import socket
 import pickle
 import math
@@ -75,14 +76,15 @@ def main():
 if __name__ == '__main__':
     local_socket = socket.socket()
 
+    address = network.get_address()
     try:
-        local_socket.bind(network.SERVER_ADDRESS)
+        local_socket.bind(address)
     except socket.error as error:
         print("Error occurred binding server:", error)
         exit()
 
     local_socket.listen()
-    print(f"Server online, waiting for clients...")
+    print(f"Server online ({address}), waiting for clients...")
 
     sessions = {}
     client_indices_used = 0
